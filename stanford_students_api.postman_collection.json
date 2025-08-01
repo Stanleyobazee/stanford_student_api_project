@@ -1,0 +1,144 @@
+{
+	"info": {
+		"_postman_id": "stanford-students-api",
+		"name": "Stanford University Students API",
+		"description": "API for managing Stanford University Computer Science students",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/healthcheck",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"healthcheck"
+					]
+				}
+			}
+		},
+		{
+			"name": "Create Student",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"email\": \"john.doe@stanford.edu\",\n  \"student_id\": \"CS001\",\n  \"major\": \"Computer Science\",\n  \"year\": 3\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/students",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"students"
+					]
+				}
+			}
+		},
+		{
+			"name": "Get All Students",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/students",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"students"
+					]
+				}
+			}
+		},
+		{
+			"name": "Get Student by ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/students/1",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"students",
+						"1"
+					]
+				}
+			}
+		},
+		{
+			"name": "Update Student",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Smith\",\n  \"email\": \"john.smith@stanford.edu\",\n  \"student_id\": \"CS001\",\n  \"major\": \"Computer Science\",\n  \"year\": 4\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/students/1",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"students",
+						"1"
+					]
+				}
+			}
+		},
+		{
+			"name": "Delete Student",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/v1/students/1",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"students",
+						"1"
+					]
+				}
+			}
+		}
+	]
+}
