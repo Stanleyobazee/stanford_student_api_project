@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"path/filepath"
 
 	"stanford-uni-students-api/config"
 	"stanford-uni-students-api/controllers"
@@ -33,6 +34,10 @@ func main() {
 	
 	// Setup file logging if LOG_FILE is specified
 	if cfg.LogFile != "" {
+		// Create directory if it doesn't exist
+		if err := os.MkdirAll(filepath.Dir(cfg.LogFile), 0755); err != nil {
+			log.Fatalf("Failed to create log directory: %v", err)
+		}
 		file, err := os.OpenFile(cfg.LogFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 		if err != nil {
 			log.Fatalf("Failed to open log file: %v", err)
