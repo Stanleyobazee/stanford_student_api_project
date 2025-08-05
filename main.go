@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"stanford-uni-students-api/config"
 	"stanford-uni-students-api/controllers"
