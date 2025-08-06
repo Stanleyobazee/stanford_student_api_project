@@ -28,17 +28,20 @@ func Connect(databaseURL string, logger *logrus.Logger) (*sql.DB, error) {
 func RunMigrations(db *sql.DB, logger *logrus.Logger) error {
 	driver, err := postgres.WithInstance(db, &postgres.Config{})
 	if err != nil {
+		logger.WithError(err).Error("Failed to create migration driver")
 		return fmt.Errorf("failed to create migration driver: %w", err)
 	}
 
 	m, err := migrate.NewWithDatabaseInstance(
-		"file://database/migrations",
+		"file://./database/migrations",
 		"postgres", driver)
 	if err != nil {
+		logger.WithError(err).Error("Failed to create migration instance")
 		return fmt.Errorf("failed to create migration instance: %w", err)
 	}
 
 	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		logger.WithError(err).Error("Failed to run migrations")
 		return fmt.Errorf("failed to run migrations: %w", err)
 	}
 
