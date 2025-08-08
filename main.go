@@ -67,6 +67,10 @@ func main() {
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 
+	// Serve static files
+	r.Static("/static", "./web")
+	r.StaticFile("/", "./web/index.html")
+
 	// Setup routes
 	routes.SetupRoutes(r, studentController, healthController)
 
