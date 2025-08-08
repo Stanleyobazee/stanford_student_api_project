@@ -87,10 +87,14 @@ async function handleSubmit(e) {
 
 // Edit student
 async function editStudent(id) {
+    console.log('Edit student clicked, ID:', id);
     try {
         const response = await fetch(`${API_BASE}/students/${id}`);
+        console.log('Fetch response status:', response.status);
+        
         if (response.ok) {
             const student = await response.json();
+            console.log('Student data:', student);
             
             document.getElementById('student-id').value = student.id;
             document.getElementById('first-name').value = student.first_name;
@@ -104,10 +108,16 @@ async function editStudent(id) {
             document.getElementById('form-title').textContent = 'Edit Student';
             document.getElementById('submit-btn').textContent = 'Update Student';
             document.getElementById('cancel-btn').style.display = 'inline-block';
+            
+            // Scroll to form
+            document.getElementById('student-form').scrollIntoView({ behavior: 'smooth' });
         } else {
+            const errorData = await response.text();
+            console.log('Error response:', errorData);
             showMessage('Error loading student details', 'error');
         }
     } catch (error) {
+        console.log('Edit error:', error);
         showMessage('Error: ' + error.message, 'error');
     }
 }
