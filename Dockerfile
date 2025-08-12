@@ -36,9 +36,8 @@ EXPOSE 8080
 # Use non-root user
 USER nonroot:nonroot
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD ["/app/main", "--health-check"] || exit 1
+# Health check removed - distroless doesn't have curl/wget
+# Use external monitoring or docker-compose health check instead
 
 # Run the application
 ENTRYPOINT ["/app/main"]
