@@ -10,7 +10,7 @@ services:
     ports:
       - "5433:5432"  # External port 5433, internal port 5432
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./postgres_data:/var/lib/postgresql/data  # Host volume for persistence
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U admin_stan -d stanford_students"]
       interval: 30s
@@ -30,5 +30,5 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-volumes:
-  postgres_data:
+# Using host directory binding instead of named volumes
+# Data will be stored in ./postgres_data/ directory

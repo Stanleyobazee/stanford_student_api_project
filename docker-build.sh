@@ -22,6 +22,7 @@ if [ $? -eq 0 ]; then
     echo "docker-compose up -d"
     echo "📍 Container PostgreSQL will be available on localhost:5433"
     echo "📍 Local PostgreSQL remains on localhost:5432"
+    echo "💾 Data will be persisted in ./postgres_data/ directory"
 else
     echo "❌ Docker build failed!"
     exit 1
