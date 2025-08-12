@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_DB: stanford_students
       POSTGRES_USER: admin_stan
-      POSTGRES_PASSWORD: password123
+      POSTGRES_PASSWORD: admin12345
     ports:
       - "5433:5432"  # External port 5433, internal port 5432
     volumes:
@@ -22,7 +22,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      DATABASE_URL: postgres://admin_stan:password123@postgres:5432/stanford_students?sslmode=disable
+      DATABASE_URL: postgres://admin_stan:admin12345@postgres:5432/stanford_students?sslmode=disable
       PORT: 8080
       LOG_LEVEL: info
     depends_on:
