@@ -15,7 +15,7 @@ if [ $? -eq 0 ]; then
     
     echo ""
     echo "🚀 To run with LOCAL PostgreSQL (port 5432):"
-    echo "docker run -p 8080:8080 -e DATABASE_URL='postgres://admin_stan:password123@host.docker.internal:5432/stanford_students_db?sslmode=disable' stanford-students-api:v1"
+    echo "docker run --network host -e DATABASE_URL='postgres://admin_stan:admin12345@localhost:5432/stanford_students_db?sslmode=disable' stanford-students-api:v1"
 
     echo ""
     echo "🐳 To run with CONTAINERIZED PostgreSQL (port 5433):"
