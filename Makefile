@@ -39,7 +39,7 @@ build-api:
 	@echo "✅ Docker image built successfully!"
 
 # Run REST API docker container (with dependencies)
-run-api: start-db run-migrations build-api
+run-api: build-api start-db run-migrations
 	@echo "🚀 Starting REST API container..."
 	@if [ $$(docker ps -q -f name=stanford_student_api_project_app) ]; then \
 		echo "✅ API container already running at http://localhost:8080"; \
