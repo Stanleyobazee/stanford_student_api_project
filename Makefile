@@ -117,7 +117,7 @@ status:
 	else \
 		echo "🗄️  Database: ❌ Not running"; \
 	fi
-	@if [ $$(docker ps -q -f name=stanford_student_api_project_app) ] || [ $$(docker ps -q -f name=stanford-api) ]; then \
+	@if [ $$(docker ps -q -f name=stanford_student_api_project-app) ] || [ $$(docker ps -q -f name=stanford-api) ]; then \
 		echo "🚀 API: ✅ Running (containerized)"; \
 	elif lsof -i:8080 >/dev/null 2>&1; then \
 		echo "🚀 API: ✅ Running (local/other)"; \
