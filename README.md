@@ -15,48 +15,133 @@ A RESTful API for managing Stanford University Computer Science students built w
 
 ## Prerequisites
 
-- Go 1.21+
-- PostgreSQL 12+
-- Git
+Before running this application, ensure you have the following tools installed:
 
-## Setup
+### Required Tools
+- **Docker** (v20.10+) - [Install Docker](https://docs.docker.com/get-docker/)
+- **Docker Compose** (v2.0+) - Usually included with Docker Desktop
+- **Make** - Build automation tool
+  - **Linux/macOS**: Usually pre-installed
+  - **Windows**: Install via [Chocolatey](https://chocolatey.org/) or [Make for Windows](http://gnuwin32.sourceforge.net/packages/make.htm)
+- **Git** - Version control
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd stanford-uni-students-api
-   ```
+### Optional Tools (for local development)
+- **Go** (v1.21+) - [Install Go](https://golang.org/doc/install)
+- **PostgreSQL** (v12+) - [Install PostgreSQL](https://www.postgresql.org/download/)
+- **migrate** CLI - [Install golang-migrate](https://github.com/golang-migrate/migrate/tree/master/cmd/migrate)
 
-2. **Install dependencies**
-   ```bash
-   go mod tidy
-   ```
+### Verify Installation
+```bash
+# Check required tools
+docker --version
+docker-compose --version
+make --version
+git --version
 
-3. **Setup PostgreSQL database**
-   ```sql
-   CREATE DATABASE stanford_students;
-   CREATE USER your_user WITH PASSWORD 'your_password';
-   GRANT ALL PRIVILEGES ON DATABASE stanford_students TO your_user;
-   ```
+# Check optional tools (if doing local development)
+go version
+psql --version
+```
 
-4. **Configure environment variables**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your database credentials
-   ```
+## Quick Start
 
-5. **Run the application**
-   ```bash
-   go run main.go
-   ```
+### 🚀 **One-Command Setup**
+```bash
+# Clone the repository
+git clone <repository-url>
+cd stanford-uni-students-api
+
+# Copy environment configuration
+cp .env.example .env
+# Edit .env with your credentials (see Environment Variables section)
+
+# Start the complete application (DB + API)
+make run-api
+```
+
+### 📋 **Make Targets**
+
+#### **Docker Operations (Recommended)**
+```bash
+# Start database container
+make start-db
+
+# Run database migrations
+make run-migrations
+
+# Build REST API Docker image
+make build-api
+
+# Start complete application (runs all above steps)
+make run-api
+
+# Stop all containers
+make stop-all
+```
+
+#### **Development Operations**
+```bash
+# Run locally (requires local PostgreSQL)
+make dev-local
+
+# Run tests
+make test
+
+# Clean all artifacts
+make clean
+
+# Show all available targets
+make help
+```
+
+### 🔄 **Execution Order**
+
+The `make run-api` target automatically executes in this order:
+1. **Start Database** (`start-db`) - Launches PostgreSQL container
+2. **Run Migrations** (`run-migrations`) - Sets up database schema
+3. **Build API** (`build-api`) - Creates Docker image
+4. **Start API** - Launches the application container
+
+### 🛠️ **Manual Step-by-Step Setup**
+
+If you prefer to run each step manually:
+
+```bash
+# 1. Clone and setup
+git clone <repository-url>
+cd stanford-uni-students-api
+cp .env.example .env
+# Edit .env with your credentials
+
+# 2. Start database
+make start-db
+
+# 3. Run migrations
+make run-migrations
+
+# 4. Build API image
+make build-api
+
+# 5. Start API container
+docker-compose up -d app
+```
 
 ## Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `DATABASE_URL` | PostgreSQL connection string | `postgres://user:password@localhost:5432/stanford_students?sslmode=disable` |
-| `PORT` | Server port | `8080` |
-| `LOG_LEVEL` | Logging level (debug, info, warn, error) | `info` |
+Copy `.env.example` to `.env` and configure:
+
+```bash
+cp .env.example .env
+```
+
+| Variable | Description | Default | Required |
+|----------|-------------|---------|----------|
+| `POSTGRES_DB` | Database name | `stanford_students` | Yes |
+| `POSTGRES_USER` | Database username | `admin_stan` | Yes |
+| `POSTGRES_PASSWORD` | Database password | - | Yes |
+| `DATABASE_URL` | Full connection string | Auto-generated | No |
+| `PORT` | Server port | `8080` | No |
+| `LOG_LEVEL` | Logging level | `info` | No |
 
 ## API Endpoints
 
@@ -86,10 +171,81 @@ A RESTful API for managing Stanford University Computer Science students built w
 }
 ```
 
+## Docker Usage
+
+### Container Access
+- **Web Interface**: http://localhost:8080
+- **API Health Check**: http://localhost:8080/healthcheck
+- **Database**: localhost:5433 (containerized) or localhost:5432 (local)
+
+### Container Management
+```bash
+# View running containers
+docker-compose ps
+
+# View logs
+docker-compose logs app
+docker-compose logs postgres
+
+# Stop specific service
+docker-compose stop app
+docker-compose stop postgres
+
+# Restart services
+docker-compose restart
+
+# Remove all containers and volumes
+make clean
+```
+
+### Data Persistence
+- Database data is stored in `./postgres_data/` directory
+- Data survives container restarts and rebuilds
+- To reset database: `rm -rf postgres_data/` and `make run-api`
+
 ## Running Tests
 
 ```bash
-go test ./tests/...
+# Run all tests
+make test
+
+# Run tests with coverage
+go test -v -cover ./tests/...
+
+# Run specific test
+go test -v ./tests/ -run TestCreateStudent
+```
+
+## Troubleshooting
+
+### Common Issues
+
+**Port already in use:**
+```bash
+# Check what's using port 8080
+lsof -i :8080
+# Kill the process or use different port
+```
+
+**Database connection failed:**
+```bash
+# Check if database is running
+make start-db
+# Verify credentials in .env file
+```
+
+**Migrations failed:**
+```bash
+# Reset migrations
+rm -f .migrations_applied
+make run-migrations
+```
+
+**Docker build failed:**
+```bash
+# Clean Docker cache
+docker system prune -a
+make build-api
 ```
 
 ## Database Migrations
