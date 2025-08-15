@@ -35,7 +35,7 @@ run-migrations:
 # Build REST API docker image
 build-api:
 	@echo "🏗️  Building REST API Docker image..."
-	docker build -t stanford-students-api:latest .
+	docker build -t stanford-students-api:v1 .
 	@echo "✅ Docker image built successfully!"
 
 # Run REST API docker container (with dependencies)
@@ -47,7 +47,7 @@ run-api: build-api start-db run-migrations
 		echo "⚠️  Port 8080 is already in use. Please stop the running application first."; \
 		echo "🔍 Check what's running: lsof -i:8080"; \
 	else \
-		docker compose up -d app; \
+		docker compose up -d --no-build app; \
 		echo "✅ API is running at http://localhost:8080"; \
 		echo "🔍 Health check: http://localhost:8080/healthcheck"; \
 	fi

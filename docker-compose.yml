@@ -16,6 +16,7 @@ services:
       retries: 3
 
   app:
+    image: stanford-students-api:v1
     build: .
     ports:
       - "8080:8080"
