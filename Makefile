@@ -60,12 +60,12 @@ run-api: build-api start-db run-migrations
 stop-all:
 	@echo "🛑 Stopping project containers..."
 	@# Stop Docker Compose containers
-	@if [ $$(docker ps -q -f name=stanford_student_api_project) ]; then \
+	@if [ "$$(docker ps -q -f name=stanford_student_api_project)" ]; then \
 		docker compose down; \
 		echo "✅ Docker Compose containers stopped"; \
 	fi
 	@# Stop standalone API container
-	@if [ $$(docker ps -q -f name=stanford-api) ]; then \
+	@if [ "$$(docker ps -q -f name=stanford-api)" ]; then \
 		docker stop stanford-api; \
 		docker rm stanford-api; \
 		echo "✅ Standalone API container stopped"; \
