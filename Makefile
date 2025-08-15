@@ -35,8 +35,12 @@ run-migrations:
 # Build REST API docker image
 build-api:
 	@echo "🏗️  Building REST API Docker image..."
-	docker build -t stanford-students-api:v1 .
-	@echo "✅ Docker image built successfully!"
+	@if docker images stanford-students-api:v1 | grep -q v1; then \
+		echo "✅ Docker image stanford-students-api:v1 already exists, skipping build"; \
+	else \
+		docker build -t stanford-students-api:v1 . || docker tag stanford-students-api:latest stanford-students-api:v1; \
+		echo "✅ Docker image built successfully!"; \
+	fi
 
 # Run REST API docker container (with dependencies)
 run-api: build-api start-db run-migrations
@@ -55,13 +59,20 @@ run-api: build-api start-db run-migrations
 # Stop all containers
 stop-all:
 	@echo "🛑 Stopping project containers..."
+	@# Stop Docker Compose containers
 	@if [ $$(docker ps -q -f name=stanford_student_api_project) ]; then \
 		docker compose down; \
-		rm -f .migrations_applied; \
-		echo "✅ Project containers stopped"; \
-	else \
-		echo "ℹ️  No project containers running"; \
+		echo "✅ Docker Compose containers stopped"; \
 	fi
+	@# Stop standalone API container
+	@if [ $$(docker ps -q -f name=stanford-api) ]; then \
+		docker stop stanford-api; \
+		docker rm stanford-api; \
+		echo "✅ Standalone API container stopped"; \
+	fi
+	@# Clean up migration flag
+	@rm -f .migrations_applied
+	@echo "✅ All project containers stopped"
 
 # Development targets
 dev-local:
@@ -99,16 +110,14 @@ lint:
 status:
 	@echo "📊 Stanford Students API Status:"
 	@echo ""
-	@if [ $$(docker ps -q -f name=stanford_student_api_project_postgres) ]; then \
+	@if [ $$(docker ps -q -f name=stanford_student_api_project_postgres) ] || [ $$(docker ps -q -f name=postgres) ]; then \
 		echo "🗄️  Database: ✅ Running (containerized)"; \
-	elif [ $$(docker ps -q -f ancestor=postgres) ]; then \
-		echo "🗄️  Database: ✅ Running (other container)"; \
-	elif lsof -i:5432 >/dev/null 2>&1; then \
+	elif lsof -i:5432 >/dev/null 2>&1 || lsof -i:5433 >/dev/null 2>&1; then \
 		echo "🗄️  Database: ✅ Running (local PostgreSQL)"; \
 	else \
 		echo "🗄️  Database: ❌ Not running"; \
 	fi
-	@if [ $$(docker ps -q -f name=stanford_student_api_project_app) ]; then \
+	@if [ $$(docker ps -q -f name=stanford_student_api_project_app) ] || [ $$(docker ps -q -f name=stanford-api) ]; then \
 		echo "🚀 API: ✅ Running (containerized)"; \
 	elif lsof -i:8080 >/dev/null 2>&1; then \
 		echo "🚀 API: ✅ Running (local/other)"; \
