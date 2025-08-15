@@ -10,19 +10,21 @@ A RESTful API for managing Stanford University Computer Science students built w
 - ✅ Health check endpoint
 - ✅ Database migrations
 - ✅ Environment-based configuration
+- ✅ Docker containerization with multi-stage builds
+- ✅ Production-ready Makefile automation
+- ✅ Web interface for student management
 - ✅ Unit tests
 - ✅ Postman collection
 
 ## Prerequisites
 
-Before running this application, ensure you have the following tools installed:
-
 ### Required Tools
 - **Docker** (v20.10+) - [Install Docker](https://docs.docker.com/get-docker/)
-- **Docker Compose** (v2.0+) - Usually included with Docker Desktop
+- **Docker Compose** (v2.0+) - Uses `docker compose` syntax (newer versions)
 - **Make** - Build automation tool
-  - **Linux/macOS**: Usually pre-installed
-  - **Windows**: Install via [Chocolatey](https://chocolatey.org/) or [Make for Windows](http://gnuwin32.sourceforge.net/packages/make.htm)
+  - **Linux/Ubuntu**: `sudo apt install make`
+  - **macOS**: Usually pre-installed
+  - **Windows**: Install via [Chocolatey](https://chocolatey.org/)
 - **Git** - Version control
 
 ### Optional Tools (for local development)
@@ -34,7 +36,7 @@ Before running this application, ensure you have the following tools installed:
 ```bash
 # Check required tools
 docker --version
-docker-compose --version
+docker compose version
 make --version
 git --version
 
@@ -43,125 +45,122 @@ go version
 psql --version
 ```
 
+## Quick Start
+
+### 🚀 **Recommended: Simple 3-Step Setup**
+```bash
+# 1. Clone the repository
+git clone https://github.com/Stanleyobazee/stanford_student_api_project.git
+cd stanford_student_api_project
+
+# 2. Set environment variables
+export POSTGRES_DB=stanford_students
+export POSTGRES_USER=admin_stan
+export POSTGRES_PASSWORD=admin12345
+
+# 3. Start the application
+make run-api
+```
+
+### 🌐 **Access Your Application**
+- **Web Interface**: http://localhost:8080
+- **Health Check**: http://localhost:8080/healthcheck
+- **API Endpoints**: http://localhost:8080/api/v1/students
+
 ## Team Onboarding
 
-### 🎆 **For Complete Beginners**
-No tools installed? No problem!
+### 🎯 **Production Ready Setup**
 
 ```bash
 # 1. Clone the repository
-git clone <repository-url>
-cd stanford-uni-students-api
+git clone https://github.com/Stanleyobazee/stanford_student_api_project.git
+cd stanford_student_api_project
 
-# 2. Run one command - it does everything!
+# 2. Set environment variables
+export POSTGRES_DB=stanford_students
+export POSTGRES_USER=admin_stan
+export POSTGRES_PASSWORD=admin12345
+
+# 3. Start the application
+make run-api
+
+# 4. Verify it's running
+make status
+```
+
+### 🔧 **Development Workflow**
+
+```bash
+# Start application
+make run-api
+
+# Check status anytime
+make status
+
+# View logs
+docker compose logs app
+
+# Stop when done
+make stop-all
+```
+
+### 🚀 **For Complete Beginners**
+If you don't have Docker/Make installed:
+
+```bash
+# Install tools first (Ubuntu/Linux)
+sudo apt update
+sudo apt install docker.io make git
+
+# Then follow the production setup above
+```
+
+### 📦 **Automated Setup Scripts**
+
+For team members who need tool installation:
+
+```bash
+# Complete setup and run
 chmod +x quick-start.sh
 ./quick-start.sh
 
-# 3. Access the application
-# Web: http://localhost:8080
-# API: http://localhost:8080/api/v1/students
-```
-
-### 👨‍💻 **For Developers**
-Have some tools but want full setup:
-
-```bash
-# 1. Install missing tools
-./setup.sh
-
-# 2. Configure environment
-cp .env.example .env
-# Edit .env with your database credentials
-
-# 3. Start application
-make run-api
-```
-
-### 🐳 **For Docker Users**
-Only want containerized setup:
-
-```bash
-# 1. Install essential tools only
+# Install tools only
+chmod +x install-tools.sh
 ./install-tools.sh
 
-# 2. Run with Docker
-./quick-start.sh --skip-go
+# Advanced setup with options
+chmod +x setup.sh
+./setup.sh --help
 ```
 
-## Quick Start
+### 📋 **Make Commands**
 
-### 🚀 **For New Team Members (Zero Setup)**
+#### **Essential Commands**
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd stanford-uni-students-api
-
-# One-command setup and run (installs everything)
-chmod +x quick-start.sh
-./quick-start.sh
-```
-
-### 🛠️ **Manual Setup (If You Have Tools)**
-```bash
-# Clone the repository
-git clone <repository-url>
-cd stanford-uni-students-api
-
-# Copy environment configuration
-cp .env.example .env
-# Edit .env with your credentials (see Environment Variables section)
-
-# Start the complete application (DB + API)
+# Start the complete application
 make run-api
-```
 
-### 📦 **Setup Scripts for Team Members**
-
-We provide automated setup scripts so team members don't need to install tools manually:
-
-#### **Option 1: Complete Setup + Run**
-```bash
-./quick-start.sh          # Installs tools + sets up + runs app
-./quick-start.sh --skip-go # Docker-only setup (no Go installation)
-```
-
-#### **Option 2: Install Tools Only**
-```bash
-./install-tools.sh        # Installs Docker, Make, Git only
-```
-
-#### **Option 3: Full Setup (Advanced)**
-```bash
-./setup.sh                # Complete setup with all options
-./setup.sh --skip-go      # Skip Go installation
-./setup.sh --help         # Show all options
-```
-
-### 📋 **Make Targets**
-
-#### **Docker Operations (Recommended)**
-```bash
-# Start database container
-make start-db
-
-# Run database migrations
-make run-migrations
-
-# Build REST API Docker image
-make build-api
-
-# Start complete application (runs all above steps)
-make run-api
+# Check application status
+make status
 
 # Stop all containers
 make stop-all
 ```
 
-#### **Development Operations**
+#### **Individual Operations**
 ```bash
-# Run locally (requires local PostgreSQL)
-make dev-local
+# Start database only
+make start-db
 
+# Run database migrations
+make run-migrations
+
+# Build API Docker image
+make build-api
+```
+
+#### **Development & Maintenance**
+```bash
 # Run tests
 make test
 
@@ -175,9 +174,9 @@ make help
 ### 🔄 **Execution Order**
 
 The `make run-api` target automatically executes in this order:
-1. **Start Database** (`start-db`) - Launches PostgreSQL container
-2. **Run Migrations** (`run-migrations`) - Sets up database schema
-3. **Build API** (`build-api`) - Creates Docker image
+1. **Build API** (`build-api`) - Creates Docker image (skips if exists)
+2. **Start Database** (`start-db`) - Launches PostgreSQL container
+3. **Run Migrations** (`run-migrations`) - Sets up database schema
 4. **Start API** - Launches the application container
 
 ### 🛠️ **Manual Step-by-Step Setup**
@@ -186,40 +185,47 @@ If you prefer to run each step manually:
 
 ```bash
 # 1. Clone and setup
-git clone <repository-url>
-cd stanford-uni-students-api
-cp .env.example .env
-# Edit .env with your credentials
+git clone https://github.com/Stanleyobazee/stanford_student_api_project.git
+cd stanford_student_api_project
 
-# 2. Start database
-make start-db
+# 2. Set environment variables
+export POSTGRES_DB=stanford_students
+export POSTGRES_USER=admin_stan
+export POSTGRES_PASSWORD=admin12345
 
-# 3. Run migrations
-make run-migrations
-
-# 4. Build API image
+# 3. Build API image
 make build-api
 
-# 5. Start API container
-docker-compose up -d app
+# 4. Start database
+make start-db
+
+# 5. Run migrations
+make run-migrations
+
+# 6. Start API container
+docker compose up -d app
 ```
 
 ## Environment Variables
 
-Copy `.env.example` to `.env` and configure:
+**Required environment variables (export before running):**
 
 ```bash
-cp .env.example .env
+export POSTGRES_DB=stanford_students
+export POSTGRES_USER=admin_stan
+export POSTGRES_PASSWORD=admin12345
 ```
 
 | Variable | Description | Default | Required |
 |----------|-------------|---------|----------|
 | `POSTGRES_DB` | Database name | `stanford_students` | Yes |
 | `POSTGRES_USER` | Database username | `admin_stan` | Yes |
-| `POSTGRES_PASSWORD` | Database password | - | Yes |
+| `POSTGRES_PASSWORD` | Database password | `admin12345` | Yes |
 | `DATABASE_URL` | Full connection string | Auto-generated | No |
 | `PORT` | Server port | `8080` | No |
 | `LOG_LEVEL` | Logging level | `info` | No |
+
+**Note**: The `.env` file is also supported, but exporting variables is the recommended approach.
 
 ## API Endpoints
 
@@ -259,21 +265,24 @@ cp .env.example .env
 ### Container Management
 ```bash
 # View running containers
-docker-compose ps
+docker compose ps
 
 # View logs
-docker-compose logs app
-docker-compose logs postgres
+docker compose logs app
+docker compose logs postgres
 
 # Stop specific service
-docker-compose stop app
-docker-compose stop postgres
+docker compose stop app
+docker compose stop postgres
 
 # Restart services
-docker-compose restart
+docker compose restart
 
-# Remove all containers and volumes
-make clean
+# Check application status
+make status
+
+# Stop all containers
+make stop-all
 ```
 
 ### Data Persistence
@@ -345,14 +354,38 @@ Import `stanford_students_api.postman_collection.json` into Postman to test all 
 ## Project Structure
 
 ```
-stanford-uni-students-api/
-├── config/           # Configuration management
-├── controllers/      # HTTP handlers
-├── database/         # Database connection and migrations
-├── models/          # Data models and repository
-├── routes/          # Route definitions
-├── tests/           # Unit tests
-├── main.go          # Application entry point
-├── go.mod           # Go dependencies
-└── README.md        # Documentation
+stanford_student_api_project/
+├── config/                    # Configuration management
+├── controllers/               # HTTP handlers
+├── database/                  # Database connection and migrations
+│   └── migrations/           # SQL migration files
+├── models/                   # Data models and repository
+├── routes/                   # Route definitions
+├── tests/                    # Unit tests
+├── web/                      # Frontend web interface
+│   ├── index.html           # Main web page
+│   └── app.js               # Frontend JavaScript
+├── main.go                   # Application entry point
+├── go.mod                    # Go dependencies
+├── Dockerfile                # Multi-stage Docker build
+├── docker-compose.yml        # Container orchestration
+├── Makefile                  # Build automation
+├── .env.example              # Environment template
+└── README.md                 # Documentation
 ```
+
+## Docker Images
+
+- **API Image**: `stanford-students-api:v1` (~15MB distroless)
+- **Database**: `postgres:15-alpine`
+- **Multi-stage build** for optimized production image
+
+## Production Features
+
+- ✅ **Distroless final image** for security
+- ✅ **Health checks** for containers
+- ✅ **Volume persistence** for database
+- ✅ **Environment-based configuration**
+- ✅ **Automated migrations**
+- ✅ **Smart build caching** (skips rebuild if image exists)
+- ✅ **Container status monitoring**
