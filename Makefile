@@ -12,7 +12,7 @@ start-db:
 	elif [ $$(docker ps -q -f ancestor=postgres) ]; then \
 		echo "⚠️  Another PostgreSQL container is running. Skipping database start."; \
 	else \
-		docker-compose up -d postgres; \
+		docker compose up -d postgres; \
 		echo "⏳ Waiting for database to be ready..."; \
 		sleep 10; \
 	fi
@@ -47,7 +47,7 @@ run-api: start-db run-migrations build-api
 		echo "⚠️  Port 8080 is already in use. Please stop the running application first."; \
 		echo "🔍 Check what's running: lsof -i:8080"; \
 	else \
-		docker-compose up -d app; \
+		docker compose up -d app; \
 		echo "✅ API is running at http://localhost:8080"; \
 		echo "🔍 Health check: http://localhost:8080/healthcheck"; \
 	fi
@@ -56,7 +56,7 @@ run-api: start-db run-migrations build-api
 stop-all:
 	@echo "🛑 Stopping project containers..."
 	@if [ $$(docker ps -q -f name=stanford_student_api_project) ]; then \
-		docker-compose down; \
+		docker compose down; \
 		rm -f .migrations_applied; \
 		echo "✅ Project containers stopped"; \
 	else \
@@ -79,7 +79,7 @@ test:
 # Clean build artifacts and containers
 clean:
 	rm -rf bin/ postgres_data/ .migrations_applied
-	docker-compose down -v
+	docker compose down -v
 	docker rmi stanford-students-api:latest 2>/dev/null || true
 
 # Install dependencies
