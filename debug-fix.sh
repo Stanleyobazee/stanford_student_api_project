@@ -54,6 +54,10 @@ echo "🧹 Cleaning up..."
 rm -f .migrations_applied
 
 echo "🗄️ Starting PostgreSQL database..."
+# Export environment variables
+export POSTGRES_DB=stanford_students
+export POSTGRES_USER=admin_stan
+export POSTGRES_PASSWORD=admin12345
 docker compose up -d postgres
 
 if [ $? -ne 0 ]; then
