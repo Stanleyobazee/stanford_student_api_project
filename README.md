@@ -43,9 +43,65 @@ go version
 psql --version
 ```
 
+## Team Onboarding
+
+### 🎆 **For Complete Beginners**
+No tools installed? No problem!
+
+```bash
+# 1. Clone the repository
+git clone <repository-url>
+cd stanford-uni-students-api
+
+# 2. Run one command - it does everything!
+chmod +x quick-start.sh
+./quick-start.sh
+
+# 3. Access the application
+# Web: http://localhost:8080
+# API: http://localhost:8080/api/v1/students
+```
+
+### 👨‍💻 **For Developers**
+Have some tools but want full setup:
+
+```bash
+# 1. Install missing tools
+./setup.sh
+
+# 2. Configure environment
+cp .env.example .env
+# Edit .env with your database credentials
+
+# 3. Start application
+make run-api
+```
+
+### 🐳 **For Docker Users**
+Only want containerized setup:
+
+```bash
+# 1. Install essential tools only
+./install-tools.sh
+
+# 2. Run with Docker
+./quick-start.sh --skip-go
+```
+
 ## Quick Start
 
-### 🚀 **One-Command Setup**
+### 🚀 **For New Team Members (Zero Setup)**
+```bash
+# Clone the repository
+git clone <repository-url>
+cd stanford-uni-students-api
+
+# One-command setup and run (installs everything)
+chmod +x quick-start.sh
+./quick-start.sh
+```
+
+### 🛠️ **Manual Setup (If You Have Tools)**
 ```bash
 # Clone the repository
 git clone <repository-url>
@@ -57,6 +113,28 @@ cp .env.example .env
 
 # Start the complete application (DB + API)
 make run-api
+```
+
+### 📦 **Setup Scripts for Team Members**
+
+We provide automated setup scripts so team members don't need to install tools manually:
+
+#### **Option 1: Complete Setup + Run**
+```bash
+./quick-start.sh          # Installs tools + sets up + runs app
+./quick-start.sh --skip-go # Docker-only setup (no Go installation)
+```
+
+#### **Option 2: Install Tools Only**
+```bash
+./install-tools.sh        # Installs Docker, Make, Git only
+```
+
+#### **Option 3: Full Setup (Advanced)**
+```bash
+./setup.sh                # Complete setup with all options
+./setup.sh --skip-go      # Skip Go installation
+./setup.sh --help         # Show all options
 ```
 
 ### 📋 **Make Targets**
