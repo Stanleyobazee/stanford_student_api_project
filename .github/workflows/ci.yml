@@ -67,9 +67,9 @@ jobs:
         path: |
           ~/.cache/go-build
           ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        key: ${{ runner.os }}-go-v2-${{ hashFiles('**/go.sum') }}
         restore-keys: |
-          ${{ runner.os }}-go-
+          ${{ runner.os }}-go-v2-
 
     - name: Create .env for CI
       run: |
@@ -79,6 +79,14 @@ jobs:
         echo "PORT=8080" >> .env
         echo "LOG_LEVEL=info" >> .env
 
+    - name: Clean corrupted cache (if needed)
+      run: |
+        # Only clean if we detect cache corruption
+        if [ -d "~/go/pkg/mod" ] && find ~/go/pkg/mod -name "*.lock" -type f | head -1 | grep -q .; then
+          echo "🧹 Cleaning corrupted Go module cache..."
+          go clean -modcache || true
+        fi
+        
     - name: Install dependencies
       run: make deps
 
