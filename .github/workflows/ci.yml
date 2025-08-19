@@ -69,6 +69,14 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-go-
 
+    - name: Create .env for CI
+      run: |
+        echo "POSTGRES_DB=${{ env.POSTGRES_DB }}" > .env
+        echo "POSTGRES_USER=${{ env.POSTGRES_USER }}" >> .env
+        echo "POSTGRES_PASSWORD=${{ env.POSTGRES_PASSWORD }}" >> .env
+        echo "PORT=8080" >> .env
+        echo "LOG_LEVEL=info" >> .env
+
     - name: Install dependencies
       run: make deps
 
