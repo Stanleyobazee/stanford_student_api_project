@@ -1,7 +1,7 @@
 .PHONY: start-db run-migrations build-api run-api stop-all status clean test deps fmt lint dev
 
-# Load environment variables
-include .env
+# Load environment variables (optional)
+-include .env
 export
 
 # Start database container
