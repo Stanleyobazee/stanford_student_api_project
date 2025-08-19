@@ -43,3 +43,7 @@ docker-build.sh
 # Temporary files
 tmp/
 temp/
+
+# Database data (created by Docker with root permissions)
+postgres_data/
+.migrations_applied
