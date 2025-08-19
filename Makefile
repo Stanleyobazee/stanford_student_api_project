@@ -104,7 +104,13 @@ fmt:
 
 # Lint code
 lint:
-	golangci-lint run
+	@if command -v golangci-lint >/dev/null 2>&1; then \
+		golangci-lint run; \
+	else \
+		echo "⚠️  golangci-lint not found. Installing..."; \
+		curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $$(go env GOPATH)/bin v1.54.2; \
+		$$(go env GOPATH)/bin/golangci-lint run; \
+	fi
 
 # Check application status
 status:
