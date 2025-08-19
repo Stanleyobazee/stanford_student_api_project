@@ -52,16 +52,6 @@ func (m *MockStudentRepository) Delete(id int) error {
 	return args.Error(0)
 }
 
-func setupTestController() (*controllers.StudentController, *MockStudentRepository) {
-	mockRepo := new(MockStudentRepository)
-	logger := logrus.New()
-	logger.SetLevel(logrus.FatalLevel) // Suppress logs during tests
-	
-	controller := &controllers.StudentController{}
-	// Note: In a real implementation, you'd need to modify the controller to accept an interface
-	return controller, mockRepo
-}
-
 func TestCreateStudent(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	
