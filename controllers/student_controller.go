@@ -12,11 +12,11 @@ import (
 )
 
 type StudentController struct {
-	repo   *models.StudentRepository
+	repo   models.StudentRepositoryInterface
 	logger *logrus.Logger
 }
 
-func NewStudentController(repo *models.StudentRepository, logger *logrus.Logger) *StudentController {
+func NewStudentController(repo models.StudentRepositoryInterface, logger *logrus.Logger) *StudentController {
 	return &StudentController{
 		repo:   repo,
 		logger: logger,

@@ -17,6 +17,14 @@ type Student struct {
 	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
 }
 
+type StudentRepositoryInterface interface {
+	Create(student *Student) error
+	GetAll() ([]Student, error)
+	GetByID(id int) (*Student, error)
+	Update(student *Student) error
+	Delete(id int) error
+}
+
 type StudentRepository struct {
 	db *sql.DB
 }
