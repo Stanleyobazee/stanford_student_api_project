@@ -491,4 +491,4 @@ For issues or questions, check the troubleshooting section or create an issue in
 
 *📸 Screenshot: Add final screenshot showing the complete running application
 
-# just a comment
+echo "# CI trigger
