@@ -490,3 +490,4 @@ make test        # Run tests
 For issues or questions, check the troubleshooting section or create an issue in the repository.
 
 *📸 Screenshot: Add final screenshot showing the complete running application*
+echo "# CI test" 
