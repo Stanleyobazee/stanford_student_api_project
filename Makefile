@@ -89,15 +89,18 @@ test:
 
 # Clean build artifacts and containers
 clean:
-	rm -rf bin/ .migrations_applied
-	# Handle postgres_data with proper permissions
+	@echo "🧹 Cleaning up artifacts and containers..."
+	@rm -rf bin/ .migrations_applied 2>/dev/null || true
+	@# Handle postgres_data with proper permissions
 	@if [ -d "postgres_data" ]; then \
 		sudo rm -rf postgres_data/ 2>/dev/null || \
-		docker run --rm -v $(PWD):/workspace alpine sh -c "rm -rf /workspace/postgres_data" || \
+		docker run --rm -v $(PWD):/workspace alpine sh -c "rm -rf /workspace/postgres_data" 2>/dev/null || \
 		echo "⚠️  Could not remove postgres_data, continuing..."; \
 	fi
-	docker compose down -v
-	docker rmi stanford-students-api:latest 2>/dev/null || true
+	@docker compose down -v 2>/dev/null || true
+	@docker rmi stanford-students-api:v1 2>/dev/null || true
+	@docker rmi stanford-students-api:latest 2>/dev/null || true
+	@echo "✅ Cleanup completed"
 
 # Install dependencies
 deps:
