@@ -60,7 +60,7 @@ jobs:
         cache-dependency-path: go.sum
 
     - name: Cache Go modules (corruption-resistant)
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           /tmp/go-build-cache
@@ -117,7 +117,7 @@ jobs:
         make lint
 
     - name: Cache Docker layers
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: /tmp/docker-cache
         key: ${{ runner.os }}-docker-${{ hashFiles('Dockerfile', 'go.sum') }}
@@ -145,7 +145,7 @@ jobs:
         echo "✅ Unit tests completed"
         
     - name: Upload coverage reports
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: coverage-report
         path: |
