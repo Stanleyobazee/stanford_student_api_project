@@ -48,6 +48,8 @@ jobs:
         # Clean up any previous postgres_data with permission issues
         sudo rm -rf ${{ github.workspace }}/postgres_data 2>/dev/null || true
         sudo rm -rf ${{ github.workspace }}/.migrations_applied 2>/dev/null || true
+        # Clean up corrupted Go cache directories
+        sudo rm -rf /tmp/go-build-cache /tmp/go-mod-cache 2>/dev/null || true
         
     - name: Checkout code
       uses: actions/checkout@v4
@@ -63,11 +65,11 @@ jobs:
       uses: actions/cache@v4
       with:
         path: |
-          /tmp/go-build-cache
-          /tmp/go-mod-cache
-        key: ${{ runner.os }}-go-v4-${{ hashFiles('**/go.sum') }}
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-v5-${{ hashFiles('**/go.sum') }}
         restore-keys: |
-          ${{ runner.os }}-go-v4-
+          ${{ runner.os }}-go-v5-
       continue-on-error: true
 
     - name: Create .env for CI
@@ -82,13 +84,18 @@ jobs:
     - name: Setup Go cache environment
       run: |
         echo "🔧 Setting up Go cache environment..."
-        # Use custom cache directories to avoid corruption
-        export GOCACHE=/tmp/go-build-cache
-        export GOMODCACHE=/tmp/go-mod-cache
-        mkdir -p $GOCACHE $GOMODCACHE
-        echo "GOCACHE=/tmp/go-build-cache" >> $GITHUB_ENV
-        echo "GOMODCACHE=/tmp/go-mod-cache" >> $GITHUB_ENV
+        # Use standard Go cache directories
+        mkdir -p ~/.cache/go-build ~/go/pkg/mod
+        echo "GOCACHE=$HOME/.cache/go-build" >> $GITHUB_ENV
+        echo "GOMODCACHE=$HOME/go/pkg/mod" >> $GITHUB_ENV
         echo "✅ Cache environment configured"
+        
+    - name: Clean Go modules (if corrupted)
+      run: |
+        echo "🧽 Cleaning Go modules..."
+        go clean -modcache 2>/dev/null || true
+        go clean -cache 2>/dev/null || true
+        echo "✅ Go modules cleaned"
         
     - name: Install dependencies
       run: make deps
