@@ -10,6 +10,7 @@ on:
       - 'Dockerfile'
       - 'docker-compose.yml'
       - 'Makefile'
+      - 'README.md'
       - '.github/**'
       - 'database/**'
       - 'config/**'
