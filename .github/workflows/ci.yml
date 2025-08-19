@@ -19,6 +19,12 @@ jobs:
     runs-on: self-hosted
     
     steps:
+    - name: Clean workspace
+      run: |
+        # Clean up any previous postgres_data with permission issues
+        sudo rm -rf ${{ github.workspace }}/postgres_data 2>/dev/null || true
+        sudo rm -rf ${{ github.workspace }}/.migrations_applied 2>/dev/null || true
+        
     - name: Checkout code
       uses: actions/checkout@v4
 
@@ -224,5 +230,9 @@ jobs:
     - name: Clean up
       if: always()
       run: |
+        # Clean up containers and images
+        docker compose down -v 2>/dev/null || true
         docker system prune -f
-        make clean
+        # Clean up postgres_data with proper permissions
+        sudo rm -rf postgres_data/ 2>/dev/null || true
+        rm -rf bin/ .migrations_applied 2>/dev/null || true
