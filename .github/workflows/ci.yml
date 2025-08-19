@@ -77,16 +77,23 @@ jobs:
         fi
         make lint
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-
     - name: Cache Docker layers
       uses: actions/cache@v3
       with:
-        path: /tmp/.buildx-cache
-        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        path: /tmp/docker-cache
+        key: ${{ runner.os }}-docker-${{ hashFiles('Dockerfile', 'go.sum') }}
         restore-keys: |
-          ${{ runner.os }}-buildx-
+          ${{ runner.os }}-docker-
+
+    - name: Load Docker cache
+      run: |
+        if [ -f "/tmp/docker-cache/image.tar.gz" ]; then
+          echo "💾 Loading Docker cache..."
+          gunzip -c /tmp/docker-cache/image.tar.gz | docker load || echo "Cache load failed, continuing..."
+        else
+          echo "🆆 No Docker cache found"
+          mkdir -p /tmp/docker-cache
+        fi
 
     - name: Build API
       run: make build-api
@@ -97,36 +104,126 @@ jobs:
         go test -v -short ./tests/...
         echo "✅ Unit tests completed"
 
+    - name: Start services for health check
+      run: |
+        echo "🚀 Starting services for health verification..."
+        make run-api &
+        echo "⏳ Waiting for services to be ready..."
+        sleep 30
+        
+    - name: Verify app and API status
+      run: |
+        echo "📋 Checking container status..."
+        docker compose ps
+        
+        echo "🔍 Verifying database connectivity..."
+        for i in {1..30}; do
+          if docker compose exec -T postgres pg_isready -U $POSTGRES_USER -d $POSTGRES_DB; then
+            echo "✅ Database is ready and accepting connections"
+            break
+          fi
+          echo "⏳ Waiting for database... ($i/30)"
+          sleep 2
+        done
+        
+        echo "🚀 Verifying API server status..."
+        for i in {1..15}; do
+          if curl -f -s http://localhost:8080/healthcheck > /dev/null; then
+            echo "✅ API server is responding"
+            break
+          fi
+          echo "⏳ Waiting for API server... ($i/15)"
+          sleep 2
+        done
+        
+        echo "🏥 Testing health endpoint..."
+        HEALTH_RESPONSE=$(curl -s http://localhost:8080/healthcheck)
+        echo "📊 Health check response: $HEALTH_RESPONSE"
+        
+        # Verify overall status
+        if echo "$HEALTH_RESPONSE" | grep -q '"status":"healthy"'; then
+          echo "✅ Application status: HEALTHY"
+        else
+          echo "❌ Application status: UNHEALTHY"
+          exit 1
+        fi
+        
+        # Verify database connection
+        if echo "$HEALTH_RESPONSE" | grep -q '"database":"connected"'; then
+          echo "✅ Database status: CONNECTED"
+        else
+          echo "❌ Database status: DISCONNECTED"
+          exit 1
+        fi
+        
+        # Verify service identification
+        if echo "$HEALTH_RESPONSE" | grep -q '"service":"stanford-uni-students-api"'; then
+          echo "✅ Service identification: VERIFIED"
+        else
+          echo "❌ Service identification: FAILED"
+          exit 1
+        fi
+        
+        echo "🧪 Testing API endpoints..."
+        # Test students endpoint
+        if curl -f -s http://localhost:8080/api/v1/students > /dev/null; then
+          echo "✅ Students API endpoint: ACCESSIBLE"
+        else
+          echo "❌ Students API endpoint: FAILED"
+          exit 1
+        fi
+        
+        echo "📊 Application Status Summary:"
+        echo "  🟢 API Server: RUNNING"
+        echo "  🟢 Database: CONNECTED"
+        echo "  🟢 Health Check: PASSING"
+        echo "  🟢 API Endpoints: ACCESSIBLE"
+        echo "  🟢 Overall Status: HEALTHY"
+        
+    - name: Collect service logs
+      if: failure()
+      run: |
+        echo "📋 Collecting service logs for debugging..."
+        echo "=== API Logs ==="
+        docker compose logs app || true
+        echo "=== Database Logs ==="
+        docker compose logs postgres || true
+        
+    - name: Stop test services
+      if: always()
+      run: |
+        echo "🛑 Stopping test services..."
+        make stop-all || true
+        docker compose down || true
+        echo "✅ Services stopped successfully"
+
     - name: Docker login
       uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Build and push Docker image
-      timeout-minutes: 15
+    - name: Build Docker image
+      timeout-minutes: 10
       run: |
-        echo "🏗️ Building Docker image with cache..."
-        docker buildx build \
-          --cache-from=type=local,src=/tmp/.buildx-cache \
-          --cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max \
-          --tag ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }} \
-          --tag ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE }}:latest \
-          --push \
-          .
+        echo "🏗️ Building Docker image..."
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }} .
+        docker tag ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }} ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE }}:latest
+        echo "✅ Docker build completed"
         
-        echo "✅ Docker build and push completed with caching"
-
-    - name: Move cache
+    - name: Push Docker image
+      timeout-minutes: 5
       run: |
-        # Move buildx cache for next run
-        if [ -d "/tmp/.buildx-cache-new" ]; then
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-          echo "✅ Docker cache moved successfully"
-        else
-          echo "⚠️ No new cache directory found"
-        fi
+        echo "📤 Pushing to Docker Hub..."
+        docker push ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }}
+        docker push ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE }}:latest
+        echo "✅ Docker push completed"
+
+    - name: Save Docker cache
+      run: |
+        echo "💾 Saving Docker layer cache..."
+        docker save ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }} | gzip > /tmp/docker-cache/image.tar.gz || echo "Cache save failed, continuing..."
+        echo "✅ Cache operations completed"
 
     - name: Clean up
       if: always()
