@@ -6,238 +6,266 @@ A RESTful API for managing Stanford University Computer Science students built w
 
 - ✅ CRUD operations for student management
 - ✅ API versioning (v1)
-- ✅ Structured logging with different log levels
-- ✅ Health check endpoint
-- ✅ Database migrations
-- ✅ Environment-based configuration
+- ✅ Structured loggin# Stanford University Students API
+
+A production-ready REST API for managing Stanford University student records, built with Go, PostgreSQL, and Docker.
+
+## Features
+- ✅ Complete CRUD operations for student management
+- ✅ RESTful API with JSON responses
+- ✅ PostgreSQL database with automated migrations
 - ✅ Docker containerization with multi-stage builds
 - ✅ Production-ready Makefile automation
 - ✅ Web interface for student management
-- ✅ Unit tests
-- ✅ Postman collection
+- ✅ Health check endpoint
+- ✅ Unit tests and Postman collection
+- ✅ Environment-based configuration
 
 ## Prerequisites
 
 ### Required Tools
 - **Docker** (v20.10+) - [Install Docker](https://docs.docker.com/get-docker/)
-- **Docker Compose** (v2.0+) - Uses `docker compose` syntax (newer versions)
-- **Make** - Build automation tool
-  - **Linux/Ubuntu**: `sudo apt install make`
-  - **macOS**: Usually pre-installed
-  - **Windows**: Install via [Chocolatey](https://chocolatey.org/)
+- **Docker Compose** (v2.0+)
+- **Make** - Build automation
 - **Git** - Version control
 
-### Optional Tools (for local development)
-- **Go** (v1.21+) - [Install Go](https://golang.org/doc/install)
-- **PostgreSQL** (v12+) - [Install PostgreSQL](https://www.postgresql.org/download/)
-- **migrate** CLI - [Install golang-migrate](https://github.com/golang-migrate/migrate/tree/master/cmd/migrate)
-
 ### Verify Installation
+Run these commands to verify your tools are installed:
+
 ```bash
-# Check required tools
 docker --version
+```
+
+```bash
 docker compose version
+```
+
+```bash
 make --version
+```
+
+```bash
 git --version
-
-# Check optional tools (if doing local development)
-go version
-psql --version
 ```
 
-## Quick Start
+*📸 Screenshot: Add screenshot showing successful version checks*
 
-### 🚀 **Recommended: Simple 3-Step Setup**
+## Quick Start (3 Steps)
+
+### Step 1: Clone Repository
 ```bash
-# 1. Clone the repository
 git clone https://github.com/Stanleyobazee/stanford_student_api_project.git
+```
+
+```bash
 cd stanford_student_api_project
+```
 
-# 2. Set environment variables
-export POSTGRES_DB=stanford_students
-export POSTGRES_USER=admin_stan
-export POSTGRES_PASSWORD=admin12345
+*📸 Screenshot: Add screenshot of successful clone and directory change*
 
-# 3. Start the application
+### Step 2: Set Environment Variables
+```bash
+export POSTGRES_DB=your_database_name
+```
+
+```bash
+export POSTGRES_USER=your_username
+```
+
+```bash
+export POSTGRES_PASSWORD=your_password
+```
+
+*📸 Screenshot: Add screenshot showing environment variables being set*
+
+### Step 3: Start Application
+```bash
 make run-api
 ```
 
-### 🌐 **Access Your Application**
+*📸 Screenshot: Add screenshot of successful application startup*
+
+### Verify Application is Running
+```bash
+make status
+```
+
+*📸 Screenshot: Add screenshot showing running containers*
+
+## Access Your Application
+
 - **Web Interface**: http://localhost:8080
-- **Health Check**: http://localhost:8080/healthcheck
-- **API Endpoints**: http://localhost:8080/api/v1/students
+- **Health Check**: http://localhost:8080/healthcheck  
+- **API Base**: http://localhost:8080/api/v1/students
 
-## Team Onboarding
+*📸 Screenshot: Add screenshot of web interface*
+*📸 Screenshot: Add screenshot of health check response*
 
-### 🎯 **Production Ready Setup**
+## Essential Commands
 
+### Start Application
 ```bash
-# 1. Clone the repository
-git clone https://github.com/Stanleyobazee/stanford_student_api_project.git
-cd stanford_student_api_project
-
-# 2. Set environment variables
-export POSTGRES_DB=stanford_students
-export POSTGRES_USER=admin_stan
-export POSTGRES_PASSWORD=admin12345
-
-# 3. Start the application
 make run-api
+```
 
-# 4. Verify it's running
+### Check Status
+```bash
 make status
 ```
 
-### 🔧 **Development Workflow**
-
+### View Application Logs
 ```bash
-# Start application
-make run-api
-
-# Check status anytime
-make status
-
-# View logs
 docker compose logs app
+```
 
-# Stop when done
+### View Database Logs
+```bash
+docker compose logs postgres
+```
+
+### Stop All Services
+```bash
 make stop-all
 ```
 
-### 🚀 **For Complete Beginners**
-If you don't have Docker/Make installed:
+*📸 Screenshot: Add screenshot showing logs output*
 
+## Individual Service Management
+
+### Start Database Only
 ```bash
-# Install tools first (Ubuntu/Linux)
-sudo apt update
-sudo apt install docker.io make git
-
-# Then follow the production setup above
-```
-
-### 📦 **Automated Setup Scripts**
-
-For team members who need tool installation:
-
-```bash
-# Complete setup and run
-chmod +x quick-start.sh
-./quick-start.sh
-
-# Install tools only
-chmod +x install-tools.sh
-./install-tools.sh
-
-# Advanced setup with options
-chmod +x setup.sh
-./setup.sh --help
-```
-
-### 📋 **Make Commands**
-
-#### **Essential Commands**
-```bash
-# Start the complete application
-make run-api
-
-# Check application status
-make status
-
-# Stop all containers
-make stop-all
-```
-
-#### **Individual Operations**
-```bash
-# Start database only
 make start-db
+```
 
-# Run database migrations
+### Run Database Migrations
+```bash
 make run-migrations
+```
 
-# Build API Docker image
+### Build API Image
+```bash
 make build-api
 ```
 
-#### **Development & Maintenance**
+### View Running Containers
 ```bash
-# Run tests
+docker compose ps
+```
+
+*📸 Screenshot: Add screenshot of docker compose ps output*
+
+## Testing the API
+
+### Health Check
+```bash
+curl http://localhost:8080/healthcheck
+```
+
+### Create a Student
+```bash
+curl -X POST http://localhost:8080/api/v1/students \
+  -H "Content-Type: application/json" \
+  -d '{
+    "first_name": "John",
+    "last_name": "Doe",
+    "email": "john.doe@stanford.edu",
+    "student_id": "CS001",
+    "major": "Computer Science",
+    "year": 3
+  }'
+```
+
+### Get All Students
+```bash
+curl http://localhost:8080/api/v1/students
+```
+
+### Get Student by ID
+```bash
+curl http://localhost:8080/api/v1/students/1
+```
+
+*📸 Screenshot: Add screenshot of API responses*
+
+## Running Tests
+
+### Run All Tests
+```bash
 make test
-
-# Clean all artifacts
-make clean
-
-# Show all available targets
-make help
 ```
 
-### 🔄 **Execution Order**
+### Run Tests with Coverage
+```bash
+go test -v -cover ./tests/...
+```
 
-The `make run-api` target automatically executes in this order:
-1. **Build API** (`build-api`) - Creates Docker image (skips if exists)
-2. **Start Database** (`start-db`) - Launches PostgreSQL container
-3. **Run Migrations** (`run-migrations`) - Sets up database schema
-4. **Start API** - Launches the application container
+### Run Specific Test
+```bash
+go test -v ./tests/ -run TestCreateStudent
+```
 
-### 🛠️ **Manual Step-by-Step Setup**
+*📸 Screenshot: Add screenshot of test results*
 
-If you prefer to run each step manually:
+## Environment Configuration
+
+### Required Variables
+These must be set before running the application:
 
 ```bash
-# 1. Clone and setup
-git clone https://github.com/Stanleyobazee/stanford_student_api_project.git
-cd stanford_student_api_project
-
-# 2. Set environment variables
-export POSTGRES_DB=stanford_students
-export POSTGRES_USER=admin_stan
-export POSTGRES_PASSWORD=admin12345
-
-# 3. Build API image
-make build-api
-
-# 4. Start database
-make start-db
-
-# 5. Run migrations
-make run-migrations
-
-# 6. Start API container
-docker compose up -d app
+export POSTGRES_DB=your_database_name
+export POSTGRES_USER=your_username
+export POSTGRES_PASSWORD=your_password
 ```
 
-## Environment Variables
-
-**Required environment variables (export before running):**
-
+### Optional Variables
 ```bash
-export POSTGRES_DB=stanford_students
-export POSTGRES_USER=admin_stan
-export POSTGRES_PASSWORD=admin12345
+export PORT=8080
+export LOG_LEVEL=info
 ```
 
-| Variable | Description | Default | Required |
+### Environment Variables Reference
+| Variable | Description | Example | Required |
 |----------|-------------|---------|----------|
-| `POSTGRES_DB` | Database name | `stanford_students` | Yes |
-| `POSTGRES_USER` | Database username | `admin_stan` | Yes |
-| `POSTGRES_PASSWORD` | Database password | `admin12345` | Yes |
+| `POSTGRES_DB` | Database name | `your_database_name` | Yes |
+| `POSTGRES_USER` | Database username | `your_username` | Yes |
+| `POSTGRES_PASSWORD` | Database password | `your_password` | Yes |
 | `DATABASE_URL` | Full connection string | Auto-generated | No |
 | `PORT` | Server port | `8080` | No |
 | `LOG_LEVEL` | Logging level | `info` | No |
 
-**Note**: The `.env` file is also supported, but exporting variables is the recommended approach.
-
-## API Endpoints
+## API Reference
 
 ### Health Check
-- `GET /healthcheck` - Check API and database health
+```
+GET /healthcheck
+```
+Check API and database connectivity
 
-### Students (v1)
-- `POST /api/v1/students` - Create a new student
-- `GET /api/v1/students` - Get all students
-- `GET /api/v1/students/:id` - Get student by ID
-- `PUT /api/v1/students/:id` - Update student
-- `DELETE /api/v1/students/:id` - Delete student
+### Student Endpoints
+```
+POST /api/v1/students
+```
+Create a new student
+
+```
+GET /api/v1/students
+```
+Retrieve all students
+
+```
+GET /api/v1/students/:id
+```
+Retrieve student by ID
+
+```
+PUT /api/v1/students/:id
+```
+Update existing student
+
+```
+DELETE /api/v1/students/:id
+```
+Delete student by ID
 
 ## Student Schema
 
@@ -255,101 +283,153 @@ export POSTGRES_PASSWORD=admin12345
 }
 ```
 
-## Docker Usage
+## Container Management
 
-### Container Access
-- **Web Interface**: http://localhost:8080
-- **API Health Check**: http://localhost:8080/healthcheck
-- **Database**: localhost:5433 (containerized) or localhost:5432 (local)
-
-### Container Management
+### View Container Status
 ```bash
-# View running containers
 docker compose ps
-
-# View logs
-docker compose logs app
-docker compose logs postgres
-
-# Stop specific service
-docker compose stop app
-docker compose stop postgres
-
-# Restart services
-docker compose restart
-
-# Check application status
-make status
-
-# Stop all containers
-make stop-all
 ```
 
-### Data Persistence
-- Database data is stored in `./postgres_data/` directory
-- Data survives container restarts and rebuilds
-- To reset database: `rm -rf postgres_data/` and `make run-api`
+### View Application Logs
+```bash
+docker compose logs app
+```
 
-## Running Tests
+### View Database Logs
+```bash
+docker compose logs postgres
+```
+
+### Stop Specific Service
+```bash
+docker compose stop app
+```
 
 ```bash
-# Run all tests
-make test
-
-# Run tests with coverage
-go test -v -cover ./tests/...
-
-# Run specific test
-go test -v ./tests/ -run TestCreateStudent
+docker compose stop postgres
 ```
+
+### Restart All Services
+```bash
+docker compose restart
+```
+
+### Remove All Containers
+```bash
+docker compose down
+```
+
+*📸 Screenshot: Add screenshot of container management commands*
+
+## Data Management
+
+### Database Data Location
+Database data persists in: `./postgres_data/`
+
+### Reset Database
+```bash
+rm -rf postgres_data/
+```
+
+```bash
+make run-api
+```
+
+### Backup Database
+```bash
+docker compose exec postgres pg_dump -U $POSTGRES_USER $POSTGRES_DB > backup.sql
+```
+
+### Restore Database
+```bash
+docker compose exec -T postgres psql -U $POSTGRES_USER $POSTGRES_DB < backup.sql
+```
+
+
 
 ## Troubleshooting
 
-### Common Issues
-
-**Port already in use:**
+### Port Already in Use
+Check what's using port 8080:
 ```bash
-# Check what's using port 8080
 lsof -i :8080
-# Kill the process or use different port
 ```
 
-**Database connection failed:**
+Kill the process:
 ```bash
-# Check if database is running
+kill -9 <PID>
+```
+
+### Database Connection Issues
+Restart database:
+```bash
 make start-db
-# Verify credentials in .env file
 ```
 
-**Migrations failed:**
+Check database status:
 ```bash
-# Reset migrations
+docker compose logs postgres
+```
+
+### Migration Problems
+Reset migrations:
+```bash
 rm -f .migrations_applied
+```
+
+```bash
 make run-migrations
 ```
 
-**Docker build failed:**
+### Docker Build Issues
+Clean Docker cache:
 ```bash
-# Clean Docker cache
 docker system prune -a
+```
+
+Rebuild API:
+```bash
 make build-api
 ```
 
-## Database Migrations
-
-Migrations run automatically on application startup. To run manually:
-
+### View All Make Targets
 ```bash
-# Up migrations
-migrate -path database/migrations -database "postgres://user:password@localhost:5432/stanford_students?sslmode=disable" up
-
-# Down migrations
-migrate -path database/migrations -database "postgres://user:password@localhost:5432/stanford_students?sslmode=disable" down
+make help
 ```
 
-## Postman Collection
+*📸 Screenshot: Add screenshot of troubleshooting commands output*
 
-Import `stanford_students_api.postman_collection.json` into Postman to test all endpoints.
+## Database Migrations
+
+Migrations run automatically on startup. For manual control:
+
+### Run Migrations Up
+```bash
+migrate -path database/migrations -database "postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:5432/$POSTGRES_DB?sslmode=disable" up
+```
+
+### Run Migrations Down
+```bash
+migrate -path database/migrations -database "postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:5432/$POSTGRES_DB?sslmode=disable" down
+```
+
+### Check Migration Status
+```bash
+migrate -path database/migrations -database "postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@localhost:5432/$POSTGRES_DB?sslmode=disable" version
+```
+
+## API Testing
+
+### Using Postman
+Import the collection file:
+```
+stanford_students_api.postman_collection.json
+```
+
+### Using curl Examples
+See the "Testing the API" section above for curl commands.
+
+*📸 Screenshot: Add screenshot of Postman collection*
 
 ## Project Structure
 
@@ -382,10 +462,31 @@ stanford_student_api_project/
 
 ## Production Features
 
-- ✅ **Distroless final image** for security
-- ✅ **Health checks** for containers
+- ✅ **Distroless final image** (~15MB) for security
+- ✅ **Health checks** for all containers
 - ✅ **Volume persistence** for database
 - ✅ **Environment-based configuration**
-- ✅ **Automated migrations**
-- ✅ **Smart build caching** (skips rebuild if image exists)
+- ✅ **Automated database migrations**
+- ✅ **Smart build caching**
 - ✅ **Container status monitoring**
+- ✅ **Multi-stage Docker builds**
+
+## Quick Reference
+
+### Most Used Commands
+```bash
+make run-api     # Start everything
+make status      # Check status
+make stop-all    # Stop everything
+make test        # Run tests
+```
+
+### Access Points
+- Web UI: http://localhost:8080
+- Health: http://localhost:8080/healthcheck
+- API: http://localhost:8080/api/v1/students
+
+### Support
+For issues or questions, check the troubleshooting section or create an issue in the repository.
+
+*📸 Screenshot: Add final screenshot showing the complete running application*
