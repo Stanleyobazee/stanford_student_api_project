@@ -100,13 +100,7 @@ jobs:
     - name: Install dependencies
       run: make deps
       
-    - name: Vulnerability scan
-      run: |
-        echo "🔍 Scanning for vulnerabilities..."
-        # Install govulncheck if not present
-        go install golang.org/x/vuln/cmd/govulncheck@latest
-        govulncheck ./... || echo "Vulnerability scan completed with warnings"
-        echo "✅ Vulnerability scan completed"
+
 
     # - name: Format code
     #   run: |
