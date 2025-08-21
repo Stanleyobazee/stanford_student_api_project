@@ -43,6 +43,14 @@ jobs:
       GO_VERSION: ${{ matrix.go-version }}
     
     steps:
+    - name: 🚀 CI Job Started
+      run: |
+        echo "🚀 CI Pipeline Started at $(date)"
+        echo "📋 Commit: ${{ github.sha }}"
+        echo "👤 Author: ${{ github.actor }}"
+        echo "🌿 Branch: ${{ github.ref_name }}"
+        echo "📍 Runner: $(hostname)"
+        
     - name: Clean workspace
       run: |
         # Clean up any previous postgres_data with permission issues
@@ -288,3 +296,11 @@ jobs:
         # Clean up postgres_data with proper permissions
         sudo rm -rf postgres_data/ 2>/dev/null || true
         rm -rf bin/ .migrations_applied 2>/dev/null || true
+        
+    - name: ✅ CI Job Completed
+      if: always()
+      run: |
+        echo "✅ CI Pipeline Completed at $(date)"
+        echo "⏱️ Total Duration: ${{ job.duration || 'N/A' }}"
+        echo "📊 Status: ${{ job.status }}"
+        echo "🎯 Result: Pipeline finished successfully!"
