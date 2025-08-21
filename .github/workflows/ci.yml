@@ -69,16 +69,17 @@ jobs:
         cache: true
         cache-dependency-path: go.sum
 
-    - name: Cache Go modules (corruption-resistant)
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.cache/go-build
-          ~/go/pkg/mod
-        key: ${{ runner.os }}-go-v5-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-v5-
-      continue-on-error: true
+    # Disable Go module caching temporarily to avoid corruption
+    # - name: Cache Go modules (corruption-resistant)
+    #   uses: actions/cache@v4
+    #   with:
+    #     path: |
+    #       ~/.cache/go-build
+    #       ~/go/pkg/mod
+    #     key: ${{ runner.os }}-go-v5-${{ hashFiles('**/go.sum') }}
+    #     restore-keys: |
+    #       ${{ runner.os }}-go-v5-
+    #   continue-on-error: true
 
     - name: Create .env for CI
       run: |
@@ -89,21 +90,13 @@ jobs:
         echo "LOG_LEVEL=info" >> .env
         chmod 600 .env
 
-    - name: Setup Go cache environment
+    - name: Clean Go cache completely
       run: |
-        echo "🔧 Setting up Go cache environment..."
-        # Use standard Go cache directories
-        mkdir -p ~/.cache/go-build ~/go/pkg/mod
-        echo "GOCACHE=$HOME/.cache/go-build" >> $GITHUB_ENV
-        echo "GOMODCACHE=$HOME/go/pkg/mod" >> $GITHUB_ENV
-        echo "✅ Cache environment configured"
-        
-    - name: Clean Go modules (if corrupted)
-      run: |
-        echo "🧽 Cleaning Go modules..."
+        echo "🧽 Cleaning Go cache completely..."
+        rm -rf ~/.cache/go-build ~/go/pkg/mod 2>/dev/null || true
         go clean -modcache 2>/dev/null || true
         go clean -cache 2>/dev/null || true
-        echo "✅ Go modules cleaned"
+        echo "✅ Go cache cleaned"
         
     - name: Install dependencies
       run: make deps
