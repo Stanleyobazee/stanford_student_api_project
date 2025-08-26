@@ -42,18 +42,19 @@ build-api:
 		echo "✅ Docker image built successfully!"; \
 	fi
 
-# Run REST API docker container (with dependencies)
+# Run load-balanced API deployment (2 API instances + Nginx)
 run-api: build-api start-db run-migrations
-	@echo "🚀 Starting REST API container..."
-	@if [ $$(docker ps -q -f name=stanford_student_api_project_app) ]; then \
-		echo "✅ API container already running at http://localhost:8080"; \
+	@echo "🚀 Starting load-balanced API deployment..."
+	@if [ $$(docker ps -q -f name=stanford_student_api_project_nginx) ]; then \
+		echo "✅ Load-balanced API already running at http://localhost:8080"; \
 	elif lsof -i:8080 >/dev/null 2>&1; then \
 		echo "⚠️  Port 8080 is already in use. Please stop the running application first."; \
 		echo "🔍 Check what's running: lsof -i:8080"; \
 	else \
-		docker compose up -d --no-build app; \
-		echo "✅ API is running at http://localhost:8080"; \
+		docker compose up -d --no-build app1 app2 nginx; \
+		echo "✅ Load-balanced API is running at http://localhost:8080"; \
 		echo "🔍 Health check: http://localhost:8080/healthcheck"; \
+		echo "📊 2 API instances behind Nginx load balancer"; \
 	fi
 
 # Stop all containers
@@ -132,12 +133,19 @@ status:
 	else \
 		echo "🗄️  Database: ❌ Not running"; \
 	fi
-	@if [ $$(docker ps -q -f name=stanford_student_api_project-app) ] || [ $$(docker ps -q -f name=stanford-api) ]; then \
-		echo "🚀 API: ✅ Running (containerized)"; \
+	@if [ $$(docker ps -q -f name=stanford_student_api_project_app1) ] && [ $$(docker ps -q -f name=stanford_student_api_project_app2) ]; then \
+		echo "🚀 API: ✅ Running (2 instances load-balanced)"; \
+	elif [ $$(docker ps -q -f name=stanford_student_api_project_app1) ] || [ $$(docker ps -q -f name=stanford_student_api_project_app2) ]; then \
+		echo "🚀 API: ⚠️  Partially running (1 instance)"; \
 	elif lsof -i:8080 >/dev/null 2>&1; then \
 		echo "🚀 API: ✅ Running (local/other)"; \
 	else \
 		echo "🚀 API: ❌ Not running"; \
+	fi
+	@if [ $$(docker ps -q -f name=stanford_student_api_project_nginx) ]; then \
+		echo "⚖️  Load Balancer: ✅ Running (Nginx)"; \
+	else \
+		echo "⚖️  Load Balancer: ❌ Not running"; \
 	fi
 	@echo ""
 	@if lsof -i:8080 >/dev/null 2>&1; then \
