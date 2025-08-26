@@ -41,4 +41,6 @@ Thumbs.db
 logs/
 
 # Database data
-postgres_data/
+postgres_data/.vagrant/
+*.pem
+*.key
