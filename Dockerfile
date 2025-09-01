@@ -13,11 +13,13 @@ RUN go mod download
 # Copy source code
 COPY . .
 
-# Build the application with optimizations
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
+# Build the application with optimizations and timeout protection
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
+    timeout 300 go build \
     -ldflags='-w -s -extldflags "-static"' \
-    -a -installsuffix cgo \
-    -o main .
+    -o main . || \
+    (echo "Build timed out, trying simpler build..." && \
+     CGO_ENABLED=0 go build -o main .)
 
 # Final stage - using distroless for security
 FROM gcr.io/distroless/static-debian11:nonroot

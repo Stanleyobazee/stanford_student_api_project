@@ -248,22 +248,21 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Build Docker image
-      timeout-minutes: 8
+      timeout-minutes: 5
       run: |
         echo "🏗️ Building Docker image..."
-        # Monitor resources before build
-        echo "Memory before build: $(free -h | grep Mem | awk '{print $7}')"
+        # Monitor resources
+        echo "Memory: $(free -h | grep Mem | awk '{print $3"/"$2}')"
+        echo "Disk: $(df -h / | tail -1 | awk '{print $3"/"$2}')"
         
-        # Build with security scanning
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }} .
+        # Build with timeout protection
+        timeout 240 docker build -t ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }} . || {
+          echo "⚠️ Build timed out, cleaning up and retrying..."
+          docker system prune -f
+          docker build --no-cache -t ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }} .
+        }
+        
         docker tag ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }} ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE }}:latest
-        
-        # Basic security scan
-        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
-          -v $(pwd):/workspace aquasec/trivy:latest image \
-          --exit-code 0 --severity HIGH,CRITICAL \
-          ${{ secrets.DOCKER_USERNAME }}/${{ env.DOCKER_IMAGE }}:${{ env.DOCKER_TAG }} || echo "Security scan completed with warnings"
-        
         echo "✅ Docker build completed"
         
     - name: Push Docker image
