@@ -58,3 +58,6 @@ coverage.html
 # Build artifacts
 bin/
 main
+
+# Local archive (educational materials)
+local_archive/
