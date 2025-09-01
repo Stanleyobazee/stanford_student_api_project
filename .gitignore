@@ -41,6 +41,20 @@ Thumbs.db
 logs/
 
 # Database data
-postgres_data/.vagrant/
+postgres_data/
+
+# Vagrant
+.vagrant/
 *.pem
 *.key
+
+# Migration tracking
+.migrations_applied
+
+# Coverage reports
+coverage.out
+coverage.html
+
+# Build artifacts
+bin/
+main
