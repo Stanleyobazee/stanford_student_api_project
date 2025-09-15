@@ -48,7 +48,7 @@ spec:
         env:
         - name: POSTGRES_PASSWORD
           valueFrom:
-            secretRef:
+            secretKeyRef:
               name: postgres-secret
               key: password
         volumeMounts:
