@@ -1,0 +1,93 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: student-api
+data:
+  PORT: "8080"
+  LOG_LEVEL: "info"
+  POSTGRES_DB: "stanford_students"
+  POSTGRES_USER: "postgres"
+  DATABASE_URL: "postgres://postgres:$(POSTGRES_PASSWORD)@postgres-service:5432/stanford_students?sslmode=disable"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stanford-students-api
+  namespace: student-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: stanford-students-api
+  template:
+    metadata:
+      labels:
+        app: stanford-students-api
+    spec:
+      nodeSelector:
+        type: application
+      initContainers:
+      - name: db-migration
+        image: stanley80/stanford-students-api:latest
+        command: ["/bin/sh"]
+        args:
+        - -c
+        - |
+          echo "Running database migrations..."
+          migrate -path /app/database/migrations -database "postgres://postgres:$(POSTGRES_PASSWORD)@postgres-service:5432/stanford_students?sslmode=disable" up
+          echo "Migrations completed"
+        env:
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretRef:
+              name: postgres-secret
+              key: password
+      containers:
+      - name: api
+        image: stanley80/stanford-students-api:latest
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: app-config
+        env:
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretRef:
+              name: postgres-secret
+              key: password
+        livenessProbe:
+          httpGet:
+            path: /healthcheck
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /healthcheck
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: stanford-students-api-service
+  namespace: student-api
+spec:
+  selector:
+    app: stanford-students-api
+  ports:
+  - port: 80
+    targetPort: 8080
+    nodePort: 30080
+  type: NodePort
