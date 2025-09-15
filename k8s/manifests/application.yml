@@ -9,7 +9,6 @@ data:
   LOG_LEVEL: "info"
   POSTGRES_DB: "stanford_students"
   POSTGRES_USER: "postgres"
-  DATABASE_URL: "postgres://postgres:$(POSTGRES_PASSWORD)@postgres-service:5432/stanford_students?sslmode=disable"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -35,15 +34,18 @@ spec:
         args:
         - -c
         - |
+          set -e
           echo "Running database migrations..."
-          migrate -path /app/database/migrations -database "postgres://postgres:$(POSTGRES_PASSWORD)@postgres-service:5432/stanford_students?sslmode=disable" up
+          migrate -path /app/database/migrations -database "$DATABASE_URL" up
           echo "Migrations completed"
         env:
         - name: POSTGRES_PASSWORD
           valueFrom:
-            secretRef:
+            secretKeyRef:
               name: postgres-secret
               key: password
+        - name: DATABASE_URL
+          value: "postgres://postgres:$(POSTGRES_PASSWORD)@postgres-service:5432/stanford_students?sslmode=disable"
       containers:
       - name: api
         image: stanley80/stanford-students-api:latest
@@ -55,9 +57,11 @@ spec:
         env:
         - name: POSTGRES_PASSWORD
           valueFrom:
-            secretRef:
+            secretKeyRef:
               name: postgres-secret
               key: password
+        - name: DATABASE_URL
+          value: "postgres://postgres:$(POSTGRES_PASSWORD)@postgres-service:5432/stanford_students?sslmode=disable"
         livenessProbe:
           httpGet:
             path: /healthcheck
