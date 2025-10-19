@@ -1,8 +1,10 @@
 # Build stage
 FROM golang:1.21-alpine AS builder
 
-# Install git for go mod download
-RUN apk add --no-cache git
+# Install git and migrate tool
+RUN apk add --no-cache git curl
+RUN curl -L https://github.com/golang-migrate/migrate/releases/download/v4.16.2/migrate.linux-amd64.tar.gz | tar xvz
+RUN mv migrate /usr/local/bin/migrate
 
 WORKDIR /app
 
@@ -28,6 +30,7 @@ FROM gcr.io/distroless/static-debian11:nonroot
 COPY --from=builder /app/main /app/main
 COPY --from=builder /app/web /app/web
 COPY --from=builder /app/database /app/database
+COPY --from=builder /usr/local/bin/migrate /usr/local/bin/migrate
 
 # Set working directory
 WORKDIR /app

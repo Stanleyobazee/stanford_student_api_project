@@ -30,14 +30,13 @@ spec:
       initContainers:
       - name: db-migration
         image: stanley80/stanford-students-api:latest
-        command: ["/bin/sh"]
+        command: ["/usr/local/bin/migrate"]
         args:
-        - -c
-        - |
-          set -e
-          echo "Running database migrations..."
-          migrate -path /app/database/migrations -database "$DATABASE_URL" up
-          echo "Migrations completed"
+        - "-path"
+        - "/app/database/migrations"
+        - "-database"
+        - "$(DATABASE_URL)"
+        - "up"
         env:
         - name: POSTGRES_PASSWORD
           valueFrom:
