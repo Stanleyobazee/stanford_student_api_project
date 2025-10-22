@@ -8,17 +8,19 @@ kubectl config use-context stanford-students-cluster
 
 # Deploy namespaces first
 echo "📁 Creating namespaces..."
-kubectl apply -f k8s/manifests/namespace.yml
+kubectl apply -f manifests/namespace.yml
 
 # Install External Secrets Operator
 echo "🔐 Installing External Secrets Operator..."
-helm repo add external-secrets https://charts.external-secrets.io
-helm repo update
-helm install external-secrets external-secrets/external-secrets -n external-secrets --create-namespace
+kubectl apply -f manifests/eso-operator.yml
+
+# Wait for ESO to be ready
+echo "⏳ Waiting for External Secrets Operator to be ready..."
+kubectl wait --for=condition=ready pod -l app=external-secrets-operator -n external-secrets-system --timeout=300s
 
 # Deploy Vault
 echo "🏦 Deploying HashiCorp Vault..."
-kubectl apply -f k8s/manifests/vault.yml
+kubectl apply -f manifests/vault.yml
 
 # Wait for Vault to be ready
 echo "⏳ Waiting for Vault to be ready..."
@@ -26,16 +28,16 @@ kubectl wait --for=condition=ready pod -l app=vault -n vault --timeout=300s
 
 # Setup Vault secrets
 echo "🔧 Setting up Vault secrets..."
-chmod +x k8s/vault/setup-vault.sh
-./k8s/vault/setup-vault.sh
+chmod +x vault/setup-vault.sh
+./vault/setup-vault.sh
 
 # Deploy External Secrets configuration
 echo "🔗 Configuring External Secrets..."
-kubectl apply -f k8s/manifests/external-secrets.yml
+kubectl apply -f manifests/external-secrets.yml
 
 # Deploy database
 echo "🗄️ Deploying PostgreSQL database..."
-kubectl apply -f k8s/manifests/database.yml
+kubectl apply -f manifests/database.yml
 
 # Wait for database to be ready
 echo "⏳ Waiting for database to be ready..."
@@ -43,7 +45,7 @@ kubectl wait --for=condition=ready pod -l app=postgres -n student-api --timeout=
 
 # Deploy application
 echo "🚀 Deploying Stanford Students API..."
-kubectl apply -f k8s/manifests/application.yml
+kubectl apply -f manifests/application.yml
 
 # Wait for application to be ready
 echo "⏳ Waiting for application to be ready..."
