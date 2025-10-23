@@ -32,7 +32,7 @@ spec:
         app: vault
     spec:
       nodeSelector:
-        type: dependent_services
+        type: vault
       containers:
       - name: vault
         image: vault:1.15.2
