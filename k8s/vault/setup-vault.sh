@@ -13,12 +13,12 @@ echo "📦 Vault pod: $VAULT_POD"
 
 # Enable KV secrets engine
 echo "🔧 Enabling KV secrets engine..."
-kubectl exec -n vault $VAULT_POD -- vault secrets enable -path=secret kv-v2
+kubectl exec -n vault $VAULT_POD -- env VAULT_ADDR=http://127.0.0.1:8200 vault secrets enable -path=secret kv-v2
 
 # Create database secret
 echo "🗄️ Creating database secrets..."
-kubectl exec -n vault $VAULT_POD -- vault kv put secret/database \
-  postgres_password="your_secure_password_123"
+kubectl exec -n vault $VAULT_POD -- env VAULT_ADDR=http://127.0.0.1:8200 vault kv put secret/database \
+  postgres_password="admin12345"
 
 # Create vault token secret for External Secrets Operator
 echo "🎫 Creating vault token secret..."
