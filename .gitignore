@@ -94,3 +94,27 @@ temp/
 # Local development
 local/
 dev/
+
+# Large directories that consume EC2 space
+node_modules/
+screenshots/
+local_archive/
+.vagrant/
+postgres_data/
+logs/
+
+# Build artifacts
+*.tar
+*.zip
+*.gz
+*.bz2
+
+# Cache directories
+.cache/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Docker volumes and data
+docker-data/
+volumes/
