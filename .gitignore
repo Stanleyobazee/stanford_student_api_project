@@ -4,28 +4,30 @@
 *.dll
 *.so
 *.dylib
-bin/
 
 # Test binary, built with `go test -c`
 *.test
 
-# Output of the go coverage tool
+# Output of the go coverage tool, specifically when used with LiteIDE
 *.out
-
-# Dependency directories
-vendor/
 
 # Go workspace file
 go.work
 
-# Environment variables
-.env
+# Dependency directories (remove the comment below to include it)
+vendor/
+
+# Build directories
+build/
+dist/
+out/
 
 # IDE files
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 
 # OS generated files
 .DS_Store
@@ -36,28 +38,59 @@ go.work
 ehthumbs.db
 Thumbs.db
 
+# Security and Secrets - CRITICAL
+*.env
+*.env.local
+*.env.production
+*.env.staging
+.env.*
+**/secrets/
+**/*secret*
+**/*password*
+**/*token*
+.vault-token
+vault-token
+*.key
+*.pem
+*.p12
+*.pfx
+
+# Kubernetes secrets
+**/k8s/secrets/
+**/manifests/*secret*.yml
+**/manifests/*password*.yml
+
+# Helm local values (contains real passwords)
+**/values-local.yaml
+**/values-dev.yaml
+**/values-staging.yaml
+**/values-prod.yaml
+**/values-*.yaml
+!**/values.yaml
+!**/values-production.yaml
+!**/values-local.yaml.example
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+postgres_data/
+
 # Logs
 *.log
 logs/
 
-# Database data
-postgres_data/
+# Temporary files
+tmp/
+temp/
+.tmp/
+
+# Docker
+.dockerignore
 
 # Vagrant
 .vagrant/
-*.pem
-*.key
 
-# Migration tracking
-.migrations_applied
-
-# Coverage reports
-coverage.out
-coverage.html
-
-# Build artifacts
-bin/
-main
-
-# Local archive (educational materials)
-local_archive/
+# Local development
+local/
+dev/

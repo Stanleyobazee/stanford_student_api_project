@@ -881,5 +881,241 @@ kubectl delete namespace student-api
 - 🔄 **External Secrets**: ESO for secure credential injection
 
 ---
-# 
-**🎉 Congratulations! Your Stanford Students API is now running on Kubernetes!**
+
+## Helm Deployment (Stage 8)
+
+### Prerequisites
+
+- **Helm 3.x**: Package manager for Kubernetes - [Install Helm](https://helm.sh/docs/intro/install/)
+- **4-node Minikube cluster**: Running and properly labeled
+- **kubectl**: Configured to connect to your cluster
+
+### Helm Architecture
+
+```
+📁 helm/
+├── stanford-students-api/           # Main Helm chart
+│   ├── Chart.yaml                   # Chart metadata and dependencies
+│   ├── values.yaml                  # Default configuration values
+│   └── templates/                   # Kubernetes manifest templates
+│       ├── deployment.yaml          # API deployment template
+│       ├── service.yaml             # Service template
+│       ├── configmap.yaml           # Configuration template
+│       ├── secret.yaml              # Secrets template
+│       ├── namespace.yaml           # Namespace template
+│       └── _helpers.tpl             # Template helpers
+├── values-production.yaml           # Production overrides
+└── deploy-helm.sh                   # Helm deployment script
+```
+
+### Chart Dependencies
+
+The main chart includes community-managed dependencies:
+- **PostgreSQL**: Bitnami PostgreSQL chart
+- **Vault**: HashiCorp Vault chart
+- **External Secrets**: External Secrets Operator chart
+
+### Quick Helm Deployment
+
+#### Step 1: Verify Helm Installation
+```bash
+helm version
+```
+
+#### Step 2: Deploy Using Helm
+```bash
+cd helm
+chmod +x deploy-helm.sh
+./deploy-helm.sh
+```
+
+### Manual Helm Deployment
+
+#### Step 1: Add Required Repositories
+```bash
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add hashicorp https://helm.releases.hashicorp.com
+helm repo add external-secrets https://charts.external-secrets.io
+helm repo update
+```
+
+#### Step 2: Update Dependencies
+```bash
+cd helm/stanford-students-api
+helm dependency update
+```
+
+#### Step 3: Install the Chart
+```bash
+helm install stanford-students-api . \
+  --namespace student-api \
+  --create-namespace \
+  --wait
+```
+
+### Helm Management Commands
+
+#### Check Release Status
+```bash
+helm status stanford-students-api -n student-api
+```
+
+#### List All Releases
+```bash
+helm list -n student-api
+```
+
+#### Upgrade Release
+```bash
+helm upgrade stanford-students-api ./helm/stanford-students-api \
+  --namespace student-api
+```
+
+#### Rollback Release
+```bash
+helm rollback stanford-students-api 1 -n student-api
+```
+
+#### Uninstall Release
+```bash
+helm uninstall stanford-students-api -n student-api
+```
+
+### Configuration Management
+
+#### Default Values (values.yaml)
+```yaml
+replicaCount: 2
+image:
+  repository: stanley80/stanford-students-api
+  tag: "latest"
+service:
+  type: NodePort
+  nodePort: 30080
+postgresql:
+  enabled: true
+  auth:
+    database: "stanford_students"
+vault:
+  enabled: true
+  server:
+    dev:
+      enabled: true
+```
+
+#### Production Overrides (values-production.yaml)
+```bash
+# Deploy with production values
+helm install stanford-students-api ./helm/stanford-students-api \
+  --namespace student-api \
+  --create-namespace \
+  --values helm/values-production.yaml
+```
+
+#### Custom Values Override
+```bash
+# Override specific values
+helm install stanford-students-api ./helm/stanford-students-api \
+  --namespace student-api \
+  --create-namespace \
+  --set replicaCount=3 \
+  --set postgresql.auth.postgresPassword=my-secure-password
+```
+
+### Helm Best Practices Implemented
+
+- ✅ **Proper Chart Structure**: Standard Helm directory layout
+- ✅ **Template Helpers**: Reusable template functions in `_helpers.tpl`
+- ✅ **Values Validation**: Proper default values and overrides
+- ✅ **Resource Labels**: Consistent labeling using Helm functions
+- ✅ **Dependency Management**: Community charts for PostgreSQL, Vault, ESO
+- ✅ **Environment Separation**: Different values files for dev/prod
+- ✅ **Security**: Secrets managed through Helm templates
+- ✅ **Documentation**: Comprehensive Chart.yaml metadata
+
+### Verification Commands
+
+#### Check Deployed Resources
+```bash
+# View all resources created by Helm
+kubectl get all -n student-api -l app.kubernetes.io/managed-by=Helm
+
+# Check pods
+kubectl get pods -n student-api
+
+# Check services
+kubectl get services -n student-api
+```
+
+#### Test Application
+```bash
+# Get Minikube IP
+MINIKUBE_IP=$(minikube ip --profile stanford-students-cluster)
+
+# Test health endpoint
+curl http://$MINIKUBE_IP:30080/healthcheck
+
+# Test API
+curl http://$MINIKUBE_IP:30080/api/v1/students
+```
+
+### Helm Troubleshooting
+
+#### Debug Template Rendering
+```bash
+# Dry run to see generated manifests
+helm install stanford-students-api ./helm/stanford-students-api \
+  --namespace student-api \
+  --dry-run --debug
+```
+
+#### Check Release History
+```bash
+helm history stanford-students-api -n student-api
+```
+
+#### View Release Values
+```bash
+helm get values stanford-students-api -n student-api
+```
+
+#### Check Dependencies
+```bash
+helm dependency list ./helm/stanford-students-api
+```
+
+### Migration from K8s Manifests
+
+If you have existing K8s manifest deployments:
+
+```bash
+# Remove old manifest-based deployment
+kubectl delete -f k8s/manifests/
+
+# Deploy using Helm
+helm install stanford-students-api ./helm/stanford-students-api \
+  --namespace student-api \
+  --create-namespace
+```
+
+### Production Deployment
+
+```bash
+# Production deployment with custom values
+helm install stanford-students-api ./helm/stanford-students-api \
+  --namespace student-api \
+  --create-namespace \
+  --values helm/values-production.yaml \
+  --set postgresql.auth.postgresPassword=$SECURE_DB_PASSWORD \
+  --set vault.server.dev.devRootToken=$SECURE_VAULT_TOKEN
+```
+
+---
+
+**🎉 Congratulations! Your Stanford Students API is now deployed using Helm Charts!**
+
+### Next Steps
+- Explore Helm hooks for advanced deployment scenarios
+- Implement Helm tests for automated validation
+- Set up GitOps with ArgoCD or Flux for continuous deployment
+- Configure monitoring and observability with Prometheus/Grafana charts

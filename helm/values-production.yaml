@@ -1,0 +1,89 @@
+# Production values for stanford-students-api
+replicaCount: 3
+
+image:
+  repository: stanley80/stanford-students-api
+  pullPolicy: Always
+  tag: "latest"
+
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 8080
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: api.stanford-students.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: stanford-students-tls
+      hosts:
+        - api.stanford-students.com
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 200m
+    memory: 256Mi
+
+# Application configuration
+app:
+  port: "8080"
+  logLevel: "warn"
+  database:
+    name: "stanford_students"
+    user: "postgres"
+
+# PostgreSQL production configuration
+postgresql:
+  enabled: true
+  auth:
+    # SECURITY: Never commit real passwords to Git!
+    # Override this with: --set postgresql.auth.postgresPassword=$SECURE_PASSWORD
+    # Or use: helm install ... --set-string postgresql.auth.postgresPassword="$(openssl rand -base64 32)"
+    postgresPassword: "OVERRIDE_ME_WITH_SECURE_PASSWORD"
+    database: "stanford_students"
+  primary:
+    persistence:
+      enabled: true
+      size: 20Gi
+      storageClass: "fast-ssd"
+    resources:
+      requests:
+        memory: 1Gi
+        cpu: 500m
+      limits:
+        memory: 2Gi
+        cpu: 1000m
+
+# Vault production configuration
+vault:
+  enabled: true
+  server:
+    dev:
+      enabled: false
+    ha:
+      enabled: true
+      replicas: 3
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 250m
+      limits:
+        memory: 512Mi
+        cpu: 500m
+
+# External Secrets Operator configuration
+external-secrets:
+  enabled: true
+  installCRDs: true
+  replicaCount: 2

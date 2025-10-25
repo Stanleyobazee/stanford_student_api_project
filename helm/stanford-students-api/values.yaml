@@ -1,0 +1,88 @@
+# Default values for stanford-students-api
+replicaCount: 2
+
+image:
+  repository: stanley80/stanford-students-api
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: NodePort
+  port: 80
+  targetPort: 8080
+  nodePort: 30080
+
+ingress:
+  enabled: false
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+nodeSelector:
+  type: application
+
+tolerations: []
+
+affinity: {}
+
+# Application configuration
+app:
+  port: "8080"
+  logLevel: "info"
+  database:
+    name: "stanford_students"
+    user: "postgres"
+
+# PostgreSQL dependency configuration
+postgresql:
+  enabled: true
+  auth:
+    # SECURITY: This is a development default only!
+    # Override with: --set postgresql.auth.postgresPassword=$YOUR_PASSWORD
+    postgresPassword: "CHANGE_ME_FOR_SECURITY"
+    database: "stanford_students"
+  primary:
+    nodeSelector:
+      type: database
+    persistence:
+      enabled: true
+      size: 5Gi
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 250m
+      limits:
+        memory: 512Mi
+        cpu: 500m
+
+# Vault dependency configuration
+vault:
+  enabled: true
+  server:
+    dev:
+      enabled: true
+      # SECURITY: Override with secure token!
+      # Use: --set vault.server.dev.devRootToken=$SECURE_TOKEN
+      devRootToken: "OVERRIDE_ME_WITH_SECURE_TOKEN"
+    nodeSelector: |
+      type: vault
+    resources:
+      requests:
+        memory: 128Mi
+        cpu: 100m
+      limits:
+        memory: 256Mi
+        cpu: 200m
+
+# External Secrets Operator configuration
+external-secrets:
+  enabled: true
+  installCRDs: true

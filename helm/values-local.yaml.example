@@ -1,0 +1,27 @@
+# Local development values - Copy to values-local.yaml and customize
+# NEVER commit values-local.yaml to Git!
+
+replicaCount: 1
+
+# PostgreSQL configuration for local development
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "your-local-dev-password"
+    database: "stanford_students"
+  primary:
+    persistence:
+      enabled: true
+      size: 1Gi
+
+# Vault configuration for local development  
+vault:
+  enabled: true
+  server:
+    dev:
+      enabled: true
+      devRootToken: "your-local-vault-token"
+
+# Application configuration
+app:
+  logLevel: "debug"
