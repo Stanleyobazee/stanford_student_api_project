@@ -117,4 +117,5 @@ __pycache__/
 
 # Docker volumes and data
 docker-data/
-volumes/
+volumes/actions-runner/
+*.deb
